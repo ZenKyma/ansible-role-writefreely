@@ -1,4 +1,5 @@
 ---
+# Project source code URL: https://github.com/writefreely/writefreely
 
 writefreely_enabled: true
 writefreely_identifier: writefreely
@@ -42,7 +43,7 @@ writefreely_container_http_host: 0.0.0.0
 
 # Controls whether the writefreely container exposes its HTTP port (as defined by `writefreely_container_http_port`).
 #
-# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:7345"), or empty string to not expose.
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:8080"), or empty string to not expose.
 writefreely_container_http_host_bind_port: ''
 
 # A list of additional container networks that the container would be connected to.
