@@ -1,6 +1,6 @@
 # writefreely Ansible Role
 
-![writefreely logo](assets/logo.png)
+![writefreely logo](https://dev.synkosmos.org/timofej/ansible-role-writefreely/raw/branch/main/assets/logo.png)
 
 writefreely is a self-hosted open source platform for building a writing space on the web connected to the fediverse.
 This role helps you to set up writefreely:
