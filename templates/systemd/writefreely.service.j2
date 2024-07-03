@@ -1,0 +1,44 @@
+[Unit]
+Description=writefreely blog ({{ writefreely_identifier }})
+{% for service in writefreely_systemd_required_services_list %}
+Requires={{ service }}
+After={{ service }}
+{% endfor %}
+DefaultDependencies=no
+
+[Service]
+Type=simple
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop --time={{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ writefreely_identifier }} 2>/dev/null || true'
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ writefreely_identifier }} 2>/dev/null || true'
+
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
+                --rm \
+                --name={{ writefreely_identifier }} \
+                --log-driver=none \
+                --user={{ writefreely_uid }}:{{ writefreely_gid }} \
+                --cap-drop=ALL \
+                {% if writefreely_container_http_host_bind_port %}
+                -p {{ writefreely_container_http_host_bind_port }}:{{ writefreely_container_http_port }} \
+                {% endif %}
+                --env-file={{ writefreely_env_path }} \
+			    --label-file={{ writefreely_base_path }}/labels \
+                --network={{ writefreely_container_network }} \
+                --mount type=bind,src={{ writefreely_data_path }},dst={{ writefreely_container_data_path }} \
+                --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
+                --read-only \
+                {{ writefreely_container_image }}
+
+{% for network in writefreely_container_additional_networks %}
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ writefreely_identifier }}
+{% endfor %}
+
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ writefreely_identifier }}
+
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop --time={{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ writefreely_identifier }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ writefreely_identifier }} 2>/dev/null || true'
+Restart=always
+RestartSec=30
+SyslogIdentifier={{ writefreely_identifier }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,26 @@
+---
+
+- block:
+    - when: writefreely_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+  tags:
+    - setup-all
+    - setup-writefreely
+    - install-all
+    - install-writefreely
+
+- block:
+    - when: writefreely_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
+  tags:
+    - setup-all
+    - setup-writefreely
+    - install-all
+    - install-writefreely
+
+- block:
+    - when: not writefreely_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
+  tags:
+    - setup-all
+    - setup-writefreely

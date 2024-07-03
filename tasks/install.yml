@@ -1,0 +1,54 @@
+---
+
+- name: Ensure writefreely path exists
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: 0700
+    owner: "{{ writefreely_uid }}"
+    group: "{{ writefreely_gid }}"
+  with_items:
+    - {path: "{{ writefreely_base_path }}", when: true}
+
+- name: Ensure writefreely data path exists
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: 0755
+    owner: "{{ writefreely_uid }}"
+    group: "{{ writefreely_gid }}"
+  with_items:
+    - {path: "{{ writefreely_data_path }}", when: true}
+
+- name: Ensure writefreely traefik labels are installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/labels.j2"
+    dest: "{{ writefreely_base_path }}/labels"
+    owner: "{{ writefreely_uid }}"
+    group: "{{ writefreely_gid }}"
+    mode: 0640
+
+- name: Ensure writefreely configuration is deployed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/env.j2"
+    dest: "{{ writefreely_base_path }}/env"
+    owner: "{{ writefreely_uid }}"
+    group: "{{ writefreely_gid }}"
+    mode: 0640
+    
+- name: Ensure writefreely network is created in Docker
+  community.docker.docker_network:
+    name: "{{ writefreely_container_network }}"
+    driver: bridge
+
+- name: Ensure writefreely container image is pulled
+  community.docker.docker_image:
+    name: "{{ writefreely_container_image }}"
+    force_source: "{{ writefreely_container_image_force_pull }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+
+- name: Ensure writefreely.service installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/systemd/writefreely.service.j2"
+    dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ writefreely_identifier }}.service"
+    mode: 0644

@@ -1,0 +1,23 @@
+---
+
+- name: Check existence of writefreely systemd service
+  ansible.builtin.stat:
+    path: "{{ devture_systemd_docker_base_systemd_path }}/{{ writefreely_identifier }}.service"
+  register: writefreely_service_stat
+
+- when: writefreely_service_stat.stat.exists | bool
+  block:
+    - name: Ensure writefreely service is stopped
+      ansible.builtin.service:
+        name: "{{ writefreely_identifier }}"
+        state: stopped
+        daemon_reload: true
+    - name: Ensure writefreely service doesn't exist
+      ansible.builtin.file:
+        dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ writefreely_identifier }}.service"
+        state: absent
+
+    - name: Ensure writefreely base path is files deleted (make sure to delete node data)
+      ansible.builtin.file:
+        path: "{{ writefreely_base_path }}"
+        state: absent

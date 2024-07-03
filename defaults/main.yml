@@ -1,0 +1,186 @@
+---
+
+writefreely_enabled: true
+writefreely_identifier: writefreely
+
+writefreely_version: 0.15.0
+writefreely_log_level: INFO
+
+writefreely_hostname: ''
+writefreely_instance_name: 'A Writefreely blog'
+
+writefreely_uid: ''
+writefreely_gid: ''
+
+writefreely_base_path: "/{{ writefreely_identifier }}"
+writefreely_data_path: "{{ writefreely_base_path }}/data"
+
+writefreely_container_data_path: "/data"
+
+writefreely_debug: false
+
+writefreely_systemd_required_services_list: "{{ writefreely_systemd_required_services_list_default + writefreely_systemd_required_services_list_auto + writefreely_systemd_required_services_list_custom }}"
+writefreely_systemd_required_services_list_default: ['docker.service']
+writefreely_systemd_required_services_list_auto: []
+writefreely_systemd_required_services_list_custom: []
+
+writefreely_systemd_wanted_services_list: "{{ writefreely_systemd_wanted_services_list_default + writefreely_systemd_wanted_services_list_auto + writefreely_systemd_wanted_services_list_custom }}"
+writefreely_systemd_wanted_services_list_default: []
+writefreely_systemd_wanted_services_list_auto: []
+writefreely_systemd_wanted_services_list_custom: []
+
+writefreely_container_image: "{{ writefreely_container_image_registry_prefix }}algernon/writefreely:{{ writefreely_container_image_tag }}"
+writefreely_container_image_registry_prefix: docker.io/
+writefreely_container_image_tag: "{{ writefreely_version }}-1"
+writefreely_container_image_force_pull: "{{ writefreely_container_image.endswith(':latest') }}"
+
+writefreely_container_network: '{{ writefreely_identifier }}'
+
+# The port number in the container
+writefreely_container_http_port: 8080
+writefreely_container_http_host: 0.0.0.0
+
+# Controls whether the writefreely container exposes its HTTP port (as defined by `writefreely_container_http_port`).
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:7345"), or empty string to not expose.
+writefreely_container_http_host_bind_port: ''
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to a reverse proxy, which runs in a different container network.
+writefreely_container_additional_networks: []
+
+writefreely_env_path: "{{ writefreely_base_path }}/env"
+# Environment variables
+writefreely_env_single_user: false
+writefreely_env_open_registration: false
+writefreely_env_min_username_len: 3
+writefreely_env_max_blog: 5
+writefreely_env_federation: true
+writefreely_env_public_stats: true
+writefreely_env_private: false
+writefreely_env_local_timeline: true
+writefreely_env_user_invites: 'user'
+writefreely_env_admin_user: ''
+writefreely_env_admin_password: ''
+
+# Currently only sqlite is supported
+writefreely_database_type: 'sqlite3'
+writefreely_database_filename: 'writefreely.db'
+writefreely_database_username: ''
+writefreely_database_password: ''
+writefreely_database_database: ''
+writefreely_database_host: 'localhost'
+writefreely_database_port: 3306
+writefreely_database_tls: false
+
+
+# Configure the E-Mail address that writefreely will use to inform users, enable password resets and other activities
+# TO-DO: Implement email function in config.ini
+writefreely_email_domain: ''
+writefreely_email_mailgun_private: ''
+
+# Additional environment variables.
+writefreely_environment_variables_additional_variables: ''
+
+# Additional environment variables to pass to the writefreely container.
+# You can use this to further influence the default configuration.
+#
+# Example:
+# writefreely_environment_variables_extension: |
+#   WRITEFREELY_SITE_NAME='A inspiring blog name'
+writefreely_environment_variables_extension: ''
+
+# writefreely_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# See `roles/custom/writefreely_writefreely/templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `writefreely_container_labels_additional_labels`.
+writefreely_container_labels_traefik_enabled: false
+writefreely_container_labels_traefik_docker_network: ""
+writefreely_container_labels_traefik_entrypoints: web-secure
+writefreely_container_labels_traefik_priority: 0
+writefreely_container_labels_traefik_tls: "{{ writefreely_container_labels_traefik_entrypoints != 'web' }}"
+writefreely_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+
+# Controls which additional headers to attach to all HTTP requests.
+# To add your own custom request headers, use `writefreely_container_labels_traefik_additional_response_headers_custom`
+writefreely_container_labels_traefik_additional_request_headers: "{{ writefreely_container_labels_traefik_additional_request_headers_auto | combine(writefreely_container_labels_traefik_additional_request_headers_custom) }}"
+writefreely_container_labels_traefik_additional_request_headers_auto: {}
+writefreely_container_labels_traefik_additional_request_headers_custom: {}
+
+
+# Controls which additional headers to attach to all HTTP responses.
+# To add your own custom response headers, use `writefreely_container_labels_traefik_additional_response_headers_custom`
+writefreely_container_labels_traefik_additional_response_headers: "{{ writefreely_container_labels_traefik_additional_response_headers_auto | combine(writefreely_container_labels_traefik_additional_response_headers_custom) }}"
+writefreely_container_labels_traefik_additional_response_headers_auto: |
+  {{
+    {}
+    | combine ({'X-XSS-Protection': writefreely_http_header_xss_protection} if writefreely_http_header_xss_protection else {})
+    | combine ({'X-Frame-Options': writefreely_http_header_frame_options} if writefreely_http_header_frame_options else {})
+    | combine ({'X-Content-Type-Options': writefreely_http_header_content_type_options} if writefreely_http_header_content_type_options else {})
+    | combine ({'Content-Security-Policy': writefreely_http_header_content_security_policy} if writefreely_http_header_content_security_policy else {})
+    | combine ({'Permission-Policy': writefreely_http_header_content_permission_policy} if writefreely_http_header_content_permission_policy else {})
+    | combine ({'Strict-Transport-Security': writefreely_http_header_strict_transport_security} if writefreely_http_header_strict_transport_security and writefreely_container_labels_traefik_tls else {})
+  }}
+writefreely_container_labels_traefik_additional_response_headers_custom: {}
+
+# Specifies the value of the `X-XSS-Protection` header
+# Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
+#
+# Learn more about it is here:
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+# - https://portswigger.net/web-security/cross-site-scripting/reflected
+writefreely_http_header_xss_protection: "1; mode=block"
+
+# Specifies the value of the `X-Frame-Options` header which controls whether framing can happen.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+writefreely_http_header_frame_options: SAMEORIGIN
+
+# Specifies the value of the `X-Content-Type-Options` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+writefreely_http_header_content_type_options: nosniff
+
+# Specifies the value of the `Content-Security-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+writefreely_http_header_content_security_policy: frame-ancestors 'self'
+
+# Specifies the value of the `Permission-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permission-Policy
+writefreely_http_header_content_permission_policy: "{{ 'interest-cohort=()' if writefreely_floc_optout_enabled else '' }}"
+
+# Specifies the value of the `Strict-Transport-Security` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+writefreely_http_header_strict_transport_security: "max-age=31536000; includeSubDomains{{ '; preload' if writefreely_hsts_preload_enabled else '' }}"
+
+# Controls whether to send a "Permissions-Policy interest-cohort=();" header along with all responses
+#
+# Learn more about what it is here:
+# - https://www.eff.org/deeplinks/2021/03/googles-floc-terrible-idea
+# - https://paramdeo.com/blog/opting-your-website-out-of-googles-floc-network
+# - https://amifloced.org/
+#
+# Of course, a better solution is to just stop using browsers (like Chrome), which participate in such tracking practices.
+# See: `writefreely_content_permission_policy`
+writefreely_floc_optout_enabled: true
+
+# Controls if HSTS preloading is enabled
+#
+# In its strongest and recommended form, the [HSTS policy](https://www.chromium.org/hsts) includes all subdomains, and
+# indicates a willingness to be "preloaded" into browsers:
+# `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+# For more information visit:
+# - https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+# - https://hstspreload.org/#opt-in
+# See: `writefreely_http_header_strict_transport_security`
+writefreely_hsts_preload_enabled: false
+
+
+# writefreely_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `roles/custom/collabora_online/templates/labels.j2` for details.
+#
+# Example:
+# writefreely_container_labels_additional_labels: |
+#   my.label=1
+#   another.label="here"
+writefreely_container_labels_additional_labels: ''

@@ -1,0 +1,39 @@
+{% if writefreely_container_labels_traefik_enabled %}
+{% if writefreely_container_labels_traefik_docker_network %}
+traefik.docker.network={{ writefreely_container_labels_traefik_docker_network }}
+{% endif %}
+
+{% set middlewares = [] %}
+
+{% if writefreely_container_labels_traefik_additional_request_headers.keys() | length > 0 %}
+{% for name, value in writefreely_container_labels_traefik_additional_request_headers.items() %}
+traefik.http.middlewares.{{ writefreely_identifier }}-add-request-headers.headers.customrequestheaders.{{ name }}={{ value }}
+{% endfor %}
+{% set middlewares = middlewares + [writefreely_identifier + '-add-request-headers'] %}
+{% endif %}
+
+{% if writefreely_container_labels_traefik_additional_response_headers.keys() | length > 0 %}
+{% for name, value in writefreely_container_labels_traefik_additional_response_headers.items() %}
+traefik.http.middlewares.{{ writefreely_identifier }}-add-response-headers.headers.customresponseheaders.{{ name }}={{ value }}
+{% endfor %}
+{% set middlewares = middlewares + [writefreely_identifier + '-add-response-headers'] %}
+{% endif %}
+
+traefik.enable=true
+{% endif %}
+traefik.http.routers.{{ writefreely_identifier }}.rule=Host("{{ writefreely_hostname }}")
+{% if writefreely_container_labels_traefik_priority | int > 0 %}
+traefik.http.routers.{{ writefreely_identifier }}.priority={{ writefreely_container_labels_traefik_priority }}
+{% endif %}
+{% if middlewares | length > 0 %}
+traefik.http.routers.{{ writefreely_identifier }}.middlewares={{ middlewares | join(',') }}
+{% endif %}
+traefik.http.routers.{{ writefreely_identifier }}.service={{ writefreely_identifier }}
+traefik.http.routers.{{ writefreely_identifier }}.entrypoints={{ writefreely_container_labels_traefik_entrypoints }}
+traefik.http.routers.{{ writefreely_identifier }}.tls={{ writefreely_container_labels_traefik_tls | to_json }}
+{% if writefreely_container_labels_traefik_tls %}
+traefik.http.routers.{{ writefreely_identifier }}.tls.certResolver={{ writefreely_container_labels_traefik_tls_certResolver }}
+{% endif %}
+traefik.http.services.{{ writefreely_identifier }}.loadbalancer.server.port={{ writefreely_container_http_port }}
+
+{{ writefreely_container_labels_additional_labels }}
