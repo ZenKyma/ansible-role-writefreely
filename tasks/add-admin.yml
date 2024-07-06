@@ -1,0 +1,30 @@
+---
+
+- name: Fail if playbook called incorrectly
+  ansible.builtin.fail:
+    msg: "The `username` variable needs to be provided to this playbook, via --extra-vars"
+  when: "username is not defined or username == '<username>'"
+
+- name: Fail if playbook called incorrectly
+  ansible.builtin.fail:
+    msg: "The `password` variable needs to be provided to this playbook, via --extra-vars"
+  when: "password is not defined or password == '<password>'"
+
+- name: Ensure writefreely is started
+  ansible.builtin.service:
+    name: "{{ writefreely_identifier }}"
+    state: started
+    daemon_reload: true
+  register: start_result
+
+- name: Wait a while, so that the writefreely instance can manage to start
+  ansible.builtin.pause:
+    seconds: 7
+  when: "start_result.changed"
+
+- name: Create user account
+  ansible.builtin.command:
+    cmd: "{{ devture_systemd_docker_base_host_command_docker }} exec {{ writefreely_identifier }} writefreely user create --admin {{ username }}:{{ password }}"
+  register: writefreely_create_account_result
+  failed_when:
+    - writefreely_create_account_result.rc > 0

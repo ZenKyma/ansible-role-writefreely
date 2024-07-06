@@ -19,6 +19,18 @@
     - install-writefreely
 
 - block:
+    - when: writefreely_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/add-admin.yml"
+  tags:
+    - writefreely-add-admin
+
+- block:
+    - when: writefreely_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/add-user.yml"
+  tags:
+    - writefreely-add-user
+
+- block:
     - when: not writefreely_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
   tags:
