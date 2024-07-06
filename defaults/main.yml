@@ -49,7 +49,9 @@ writefreely_container_http_host_bind_port: ''
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
 # Use this to expose this container to a reverse proxy, which runs in a different container network.
-writefreely_container_additional_networks: []
+writefreely_container_additional_networks: "{{ writefreely_container_additional_networks_auto + writefreely_container_additional_networks_custom }}"
+writefreely_container_additional_networks_auto: []
+writefreely_container_additional_networks_custom: []
 
 writefreely_env_path: "{{ writefreely_base_path }}/env"
 # Environment variables

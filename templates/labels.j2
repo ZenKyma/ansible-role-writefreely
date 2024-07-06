@@ -1,4 +1,6 @@
 {% if writefreely_container_labels_traefik_enabled %}
+traefik.enable=true
+
 {% if writefreely_container_labels_traefik_docker_network %}
 traefik.docker.network={{ writefreely_container_labels_traefik_docker_network }}
 {% endif %}
@@ -18,10 +20,9 @@ traefik.http.middlewares.{{ writefreely_identifier }}-add-response-headers.heade
 {% endfor %}
 {% set middlewares = middlewares + [writefreely_identifier + '-add-response-headers'] %}
 {% endif %}
-
-traefik.enable=true
 {% endif %}
-traefik.http.routers.{{ writefreely_identifier }}.rule=Host("{{ writefreely_hostname }}")
+
+traefik.http.routers.{{ writefreely_identifier }}.rule=Host(`{{ writefreely_hostname }}`)
 {% if writefreely_container_labels_traefik_priority | int > 0 %}
 traefik.http.routers.{{ writefreely_identifier }}.priority={{ writefreely_container_labels_traefik_priority }}
 {% endif %}
