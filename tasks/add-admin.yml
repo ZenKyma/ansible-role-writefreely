@@ -24,7 +24,7 @@
 
 - name: Create user account
   ansible.builtin.command:
-    cmd: "{{ devture_systemd_docker_base_host_command_docker }} exec {{ writefreely_identifier }} writefreely user create --admin {{ username }}:{{ password }}"
+    cmd: "{{ devture_systemd_docker_base_host_command_docker }} exec {{ writefreely_identifier }} /writefreely/writefreely user create --admin {{ username }}:{{ password }}"
   register: writefreely_create_account_result
   failed_when:
     - writefreely_create_account_result.rc > 0
