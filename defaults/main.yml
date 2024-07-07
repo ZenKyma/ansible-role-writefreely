@@ -4,11 +4,12 @@
 writefreely_enabled: true
 writefreely_identifier: writefreely
 
-writefreely_version: 0.15.0
+writefreely_version: v0.15.0
 writefreely_log_level: INFO
 
 writefreely_hostname: ''
 writefreely_instance_name: 'A Writefreely blog'
+writefreely_instance_description: ''
 
 writefreely_uid: ''
 writefreely_gid: ''
@@ -30,9 +31,9 @@ writefreely_systemd_wanted_services_list_default: []
 writefreely_systemd_wanted_services_list_auto: []
 writefreely_systemd_wanted_services_list_custom: []
 
-writefreely_container_image: "{{ writefreely_container_image_registry_prefix }}algernon/writefreely:{{ writefreely_container_image_tag }}"
+writefreely_container_image: "{{ writefreely_container_image_registry_prefix }}jrasanen/writefreely:{{ writefreely_container_image_tag }}"
 writefreely_container_image_registry_prefix: docker.io/
-writefreely_container_image_tag: "{{ writefreely_version }}-1"
+writefreely_container_image_tag: "{{ writefreely_version }}"
 writefreely_container_image_force_pull: "{{ writefreely_container_image.endswith(':latest') }}"
 
 writefreely_container_network: '{{ writefreely_identifier }}'
@@ -64,24 +65,16 @@ writefreely_env_public_stats: true
 writefreely_env_private: false
 writefreely_env_local_timeline: true
 writefreely_env_user_invites: 'user'
-writefreely_env_admin_user: ''
-writefreely_env_admin_password: ''
 
 # Currently only sqlite is supported
 writefreely_database_type: 'sqlite3'
-writefreely_database_filename: 'writefreely.db'
+writefreely_database_filename: '/data/writefreely.db'
 writefreely_database_username: ''
 writefreely_database_password: ''
 writefreely_database_database: ''
 writefreely_database_host: 'localhost'
 writefreely_database_port: 3306
 writefreely_database_tls: false
-
-
-# Configure the E-Mail address that writefreely will use to inform users, enable password resets and other activities
-# TO-DO: Implement email function in config.ini
-writefreely_email_domain: ''
-writefreely_email_mailgun_private: ''
 
 # Additional environment variables.
 writefreely_environment_variables_additional_variables: ''
@@ -93,6 +86,11 @@ writefreely_environment_variables_additional_variables: ''
 # writefreely_environment_variables_extension: |
 #   WRITEFREELY_SITE_NAME='A inspiring blog name'
 writefreely_environment_variables_extension: ''
+
+# Configure the E-Mail address that writefreely will use to inform users, enable password resets and other activities, currently unavailable
+# TO-DO: Implement email function in config.ini
+writefreely_email_domain: ''
+writefreely_email_mailgun_private: ''
 
 # writefreely_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 # See `roles/custom/writefreely_writefreely/templates/labels.j2` for details.
