@@ -9,7 +9,7 @@ writefreely_log_level: INFO
 
 writefreely_hostname: ''
 writefreely_instance_name: 'A Writefreely blog'
-writefreely_instance_description: ''
+writefreely_instance_description: 'My Writefreely blog'
 
 writefreely_uid: ''
 writefreely_gid: ''
